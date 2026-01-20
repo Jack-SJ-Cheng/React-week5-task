@@ -24,13 +24,10 @@ function App() {
         password: password
       })
       setIsLogin(true);
-      console.log("登入成功", loginRes.data);
       setToken(loginRes.data.token);
       axios.defaults.headers.common["Authorization"] = `${loginRes.data.token}`;
       const productsRes = await axios.get(`${apiUrl}/v2/api/${apiPath}/admin/products/all`)
       setProducts(Object.values(productsRes.data.products));
-      console.log(products);
-      // console.log("成功", productsRes);
     } catch(error){
       console.error("失敗", error.response);
     }
@@ -51,6 +48,7 @@ function App() {
                 <th>名稱</th>
                 <th>原價</th>
                 <th>售價</th>
+                <th>啟用</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -64,13 +62,28 @@ function App() {
                     <td>{product.origin_price}</td>
                     <td>{product.price}</td>
                     <td>
+                      <div className="form-check form-switch">
+                        <input className="form-check-input" type="checkbox" id={"isEnabled"+index} checked={product.is_enabled}
+                          onChange={(e)=>{
+                            const check = e.target.checked;
+                            setProducts(prev=>
+                              prev.map((item, i) => i===index ? {...item, is_enabled: check} : item)
+                            )
+                          }}
+                        />
+                      </div>
+                    </td>
+                    <td>
                       <div className="btn-group">
-                        <button className="btn btn-sm btn-primary" type="button"
+                        <button className="btn btn-sm btn-outline-success" type="button"
                           data-bs-toggle="modal" data-bs-target="#productModal"
                           onClick={()=>{
                             setProduct(product);
                           }}
-                        >檢視</button>
+                        >編輯</button>
+                        <button className="btn btn-sm btn-outline-danger" type="button"
+                          data-bs-toggle="modal" data-bs-target="#productModal"
+                        >刪除</button>
                       </div>
                     </td>
                   </tr>
@@ -136,7 +149,7 @@ function App() {
                 <img src={product.imageUrl} alt="示意圖" className="img-fluid" style={{objectFit: "cover"}} />
                 {product?.imagesUrl?.map((img, index)=>{
                   return (
-                    <img src={img} alt="副圖" className="img-fluid" style={{objectFit: "cover"}}/>
+                    <img key={index} src={img} alt="副圖" className="img-fluid" style={{objectFit: "cover"}}/>
                   )
                 })}
               </div>
