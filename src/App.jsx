@@ -33,6 +33,15 @@ function App() {
     }
   }
 
+  const handleDelete =  async (item) => {
+    try {
+      const res = await axios.delete(`${apiUrl}/v2/api/${apiPath}/admin/product/${item.id}`);
+      const productsRes = await axios.get(`${apiUrl}/v2/api/${apiPath}/admin/products/all`)
+      setProducts(Object.values(productsRes.data.products));
+    } catch(error){
+      console.warn('錯誤：', error.response);
+    }
+  }
 
   return (
     <>
@@ -82,7 +91,10 @@ function App() {
                           }}
                         >編輯</button>
                         <button className="btn btn-sm btn-outline-danger" type="button"
-                          data-bs-toggle="modal" data-bs-target="#productModal"
+                          onClick={()=>{
+                            setProduct(product);
+                            handleDelete(product);
+                          }}
                         >刪除</button>
                       </div>
                     </td>
