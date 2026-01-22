@@ -7,6 +7,10 @@ import Modal from "./components/Modal"
 const apiUrl = import.meta.env.VITE_API_BASE_URL
 const apiPath = import.meta.env.VITE_API_PATH
 
+const getToken = () => 
+  document.cookie.replace(/(?:(?:^|.*;\s*)hexTaskToken\s*\=\s*([^;]*).*$)|^.*$/,
+    "$1");
+
 function App() {
   const modalRef = useRef(null);
   const modalInstance = useRef(null);
@@ -29,7 +33,7 @@ function App() {
       setProducts(Object.values(productsRes.data.products));
     } catch(error){console.warn('取得商品失敗：', error.response)}
   }
-
+  // 登入
   const handleSubmit = async (username, password) => {
     try{
       if(username === "" || password === ""){
@@ -42,6 +46,7 @@ function App() {
       })
       setIsLogin(true);
       setToken(loginRes.data.token);
+      document.cookie = `hexTaskToken=${loginRes.data.token}; expires=${new Date(loginRes.data.expired)}`;
       axios.defaults.headers.common["Authorization"] = `${loginRes.data.token}`;
       handleGetProducts();
     } catch(error){
@@ -70,6 +75,21 @@ function App() {
       }catch(error){console.warn('變更失敗：', error.response)}
     })()
   },[editItem])
+
+  // 檢查cookie
+  useEffect(()=>{
+    (async function verifySignin(){
+      const hexTaskToken = getToken();
+      axios.defaults.headers.common["Authorization"] = hexTaskToken;
+      handleGetProducts();
+      try{
+        const res = await axios.post(`${apiUrl}/v2/api/user/check`);
+        setIsLogin(true);
+      } catch(error){
+        console.error("驗證錯誤:", error);
+      }
+    })()
+  },[])
 
   return (
     <>
