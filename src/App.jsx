@@ -2,6 +2,8 @@ import axios from "axios"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.min.js"
 import { useEffect, useRef, useState } from "react"
 import Modal from "./components/Modal"
+import Signin from "./components/Signin"
+import ProductList from "./components/ProductList"
 
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL
@@ -94,116 +96,16 @@ function App() {
   return (
     <>
     <div className="container pt-5">
-      {isLogin ? (
-        <div>
-          <div className="d-flex flex-row-reverse">
-            <button type="button" className="btn btn-secondary"
-              onClick={()=>{
-                setModalType("新增商品");
-                setProduct({imagesUrl:[""],unit: "個",is_enabled:false});
-                modalInstance.current.show();
-              }}
-            >新增商品</button>
-          </div>
-          <table className="table" tabIndex={-1} ref={tableRef}>
-            <thead>
-              <tr>
-                <th>編號</th>
-                <th>分類</th>
-                <th>名稱</th>
-                <th>原價</th>
-                <th>售價</th>
-                <th>啟用</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((bean, index)=>{
-                return (
-                  <tr key={bean.id} className={bean.is_enabled ? "" : "table-secondary"}>
-                    <td>{index+1}</td>
-                    <td>{bean.category}</td>
-                    <td>{bean.title}</td>
-                    <td>{bean.origin_price}</td>
-                    <td>{bean.price}</td>
-                    <td>
-                      <div className="form-check form-switch">
-                        <input className="form-check-input" type="checkbox" id={"isEnabled"+index} checked={bean.is_enabled || false}
-                          onChange={(e)=>{
-                            const editedCheckItem = {...bean, is_enabled: e.target.checked};
-                            setProducts(prev=>
-                              prev.map((item, i) => i===index ? editedCheckItem : item)
-                            )
-                            setEditItem(editedCheckItem);
-                          }}
-                        />
-                      </div>
-                    </td>
-                    <td>
-                      <div className="btn-group">
-                        <button className="btn btn-sm btn-outline-success" type="button"
-                          onClick={()=>{
-                            if(bean?.imagesUrl?.length === 0 || !bean.imagesUrl) {
-                              const newOne = {...bean, imagesUrl:[""]}
-                              setProduct(newOne);
-                            } else {
-                              setProduct(bean);
-                            }
-                            setModalType("編輯商品");
-                            modalInstance.current.show();
-                          }}
-                        >編輯</button>
-                        <button className="btn btn-sm btn-outline-danger" type="button"
-                          onClick={()=>{
-                            handleDelete(bean);
-                          }}
-                        >刪除</button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="row justify-content-center">
-          <form className="col-sm-3">
-            <div className="d-flex">
-              <label className="text-primary col-form-label text-nowrap flex-shrink-0 pe-3" htmlFor="username">
-                帳號
-              </label>
-              <input
-                type="email"
-                className="form-control"
-                id="username"
-                placeholder="請輸入帳號"
-                autoComplete="username"
-                onChange={(e)=>setUsername(e.target.value)}
-              />
-            </div>
-            <div className="d-flex mt-4">
-              <label className="text-primary col-form-label text-nowrap flex-shrink-0 pe-3" htmlFor="password">
-                密碼
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                placeholder="請輸入密碼"
-                autoComplete="current-password"
-                onChange={(e)=>setPassword(e.target.value)}
-              />
-            </div>
-            <button className="btn btn-primary w-100 mt-4" type="button"
-              onClick={(e)=>{
-                e.preventDefault();
-                handleSubmit(username, password);
-              }}
-            >登入</button>
-          </form>
-        </div>
-      )}
+      {isLogin ? 
+      <ProductList 
+        products={products} setProducts={setProducts} modalInstance={modalInstance} 
+        setModalType={setModalType} setEditItem={setEditItem} handleDelete={handleDelete} 
+        setProduct={setProduct} tableRef={tableRef} product={product}
+        handleGetProducts={handleGetProducts}
+      />
+      : <Signin handleSubmit={handleSubmit} username={username} setUsername={setUsername}
+            password={password}  setPassword={setPassword} />
+      }
     </div>
     <Modal modalInstance={modalInstance} modalRef={modalRef} modalHeadBg={modalHeadBg} modalType={modalType}
       product={product} setProduct={setProduct} modalBtn={modalBtn}

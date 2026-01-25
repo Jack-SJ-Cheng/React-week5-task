@@ -38,7 +38,7 @@ export default function Modal ({modalInstance, modalRef, modalHeadBg, modalType,
                 <div className="d-flex mt-3">
                   <label htmlFor="originPrice" className="me-2 col-form-label text-nowrap flex-shrink-0">原價</label>
                   <div className="flex-grow-1">
-                    <input type="number" className="form-control" id="originPrice" value={product.origin_price || ''}
+                    <input type="number" min={0} className="form-control" id="originPrice" value={product.origin_price || ''}
                       onChange={(e)=>{
                         const newProduct = {...product, origin_price: e.target.value*1};
                         setProduct(newProduct);
@@ -48,7 +48,7 @@ export default function Modal ({modalInstance, modalRef, modalHeadBg, modalType,
                 <div className="d-flex mt-3">
                   <label htmlFor="price" className="me-2 col-form-label text-nowrap flex-shrink-0">售價</label>
                   <div className="flex-grow-1">
-                    <input type="number" className="form-control" id="price" value={product.price || ''}
+                    <input type="number" min={0} className="form-control" id="price" value={product.price || ''}
                       onChange={(e)=>{
                         const newProduct = {...product, price: e.target.value*1};
                         setProduct(newProduct);
@@ -110,13 +110,13 @@ export default function Modal ({modalInstance, modalRef, modalHeadBg, modalType,
                 if(modalType === "新增商品") {
                   (async()=>{
                     try {
-                      const res = await axios.post(`${apiUrl}/v2/api/${apiPath}/admin/product`,{data: product})
-                      console.log(res);
+                      const res = await axios.post(`${apiUrl}/v2/api/${apiPath}/admin/product`,{data: product});
                       handleGetProducts();
                       modalInstance.current.hide();
                     } catch (error) {
-                      alert('新增失敗');
-                      console.warn("新增失敗：", error.response)}
+                      const cache = error.response.data.message.join('\n');
+                      alert(cache);
+                      console.warn("新增失敗：", error.response.data.message)};
                   })()
                 } else if(modalType === "編輯商品"){
                   (async()=>{
@@ -124,7 +124,11 @@ export default function Modal ({modalInstance, modalRef, modalHeadBg, modalType,
                       const res = await axios.put(`${apiUrl}/v2/api/${apiPath}/admin/product/${product.id}`,{data: product});
                       handleGetProducts();
                       modalInstance.current.hide();
-                    }catch(error){console.warn("編輯失敗：", error.response)}
+                    }catch(error){
+                      const cache = error.response.data.message.join('\n');
+                      alert(cache);
+                      console.warn("編輯失敗：", error.response.data.message);
+                    }
                   })()
                   return
                 }
@@ -132,7 +136,6 @@ export default function Modal ({modalInstance, modalRef, modalHeadBg, modalType,
             >送出</button>
             <button type="button" className="btn btn-secondary"
               onClick={()=>{
-                // tableRef.current.focus();
                 modalInstance.current.hide();
               }}
             >Close</button>
