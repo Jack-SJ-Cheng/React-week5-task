@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react"
 import Modal from "./components/Modal"
 import Signin from "./components/Signin"
 import ProductList from "./components/ProductList"
+import Pagination from "./components/Pagination"
+
 
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL
@@ -25,14 +27,16 @@ function App() {
   const [editItem, setEditItem] = useState({});
   const [modalType, setModalType] = useState("");
   const [token, setToken] = useState("");
+  const [pagination, setPagination] = useState({});
   
   const modalHeadBg = modalType === "新增商品" ? "bg-primary" : (modalType === "編輯商品" ? "bg-success" : "")
   const modalBtn = modalType === "新增商品" ? "btn-primary" : (modalType === "編輯商品" ? "btn-success" : "")
 
-  const handleGetProducts = async() => {
+  const handleGetProducts = async(page = 1) => {
     try{
-      const productsRes = await axios.get(`${apiUrl}/v2/api/${apiPath}/admin/products/all`)
+      const productsRes = await axios.get(`${apiUrl}/v2/api/${apiPath}/admin/products/?page=${page}`)
       setProducts(Object.values(productsRes.data.products));
+      setPagination(productsRes.data.pagination);
     } catch(error){console.warn('取得商品失敗：', error.response)}
   }
   // 登入
@@ -95,22 +99,25 @@ function App() {
 
   return (
     <>
-    <div className="container pt-5">
-      {isLogin ? 
-      <ProductList 
-        products={products} setProducts={setProducts} modalInstance={modalInstance} 
-        setModalType={setModalType} setEditItem={setEditItem} handleDelete={handleDelete} 
-        setProduct={setProduct} tableRef={tableRef} product={product}
+      <div className="container pt-5">
+        {isLogin ? 
+        <>
+          <ProductList 
+            products={products} setProducts={setProducts} modalInstance={modalInstance} 
+            setModalType={setModalType} setEditItem={setEditItem} handleDelete={handleDelete} 
+            setProduct={setProduct} tableRef={tableRef} product={product}
+            handleGetProducts={handleGetProducts}
+          />
+          <Pagination pagination={pagination} handleChangePage={handleGetProducts}/>
+        </>
+        : <Signin handleSubmit={handleSubmit} username={username} setUsername={setUsername}
+              password={password}  setPassword={setPassword} />
+        }
+      </div>
+      <Modal modalInstance={modalInstance} modalRef={modalRef} modalHeadBg={modalHeadBg} modalType={modalType}
+        product={product} setProduct={setProduct} modalBtn={modalBtn}
         handleGetProducts={handleGetProducts}
       />
-      : <Signin handleSubmit={handleSubmit} username={username} setUsername={setUsername}
-            password={password}  setPassword={setPassword} />
-      }
-    </div>
-    <Modal modalInstance={modalInstance} modalRef={modalRef} modalHeadBg={modalHeadBg} modalType={modalType}
-      product={product} setProduct={setProduct} modalBtn={modalBtn}
-      handleGetProducts={handleGetProducts}
-    />
     </>
   )
 }
