@@ -2,3 +2,45 @@
 @import "vendors/bootstrap/variables";
 
 @import 'bootstrap/scss/bootstrap';
+
+.logo{
+  background-image: url("../src/assets/task_logo.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  text-indent: 101%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.productsZoneTitle{
+  color: $blue-900;
+}
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: #FFFFFF;
+  border-right: 1px solid $blue-100;
+  padding: 20px;
+}
+.brand-zone{
+  padding: 10px 15px 30px;
+  border-bottom: 2px solid $blue-50;
+  margin-bottom: 20px;
+}
+.nav-link {
+  color: $gray-500;
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: $blue-100;
+  color: $blue-700;
+}
+
+.productImg{
+  object-fit: cover;
+}
